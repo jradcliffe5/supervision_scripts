@@ -1,0 +1,30 @@
+---
+## Meeting YYYY-MM-DD
+
+- **Date:** YYYY-MM-DD
+- **Time / connection:** TBD
+- **Next meeting:** TBD
+- **Attendees:** TBD
+- **Apologies:** None
+
+### Agenda
+- Pipeline Health Check
+- Observing-Note Template
+- Calibration Lessons Learned
+
+### Discussion notes
+- Quick recap: The team aligned on the pilot analysis plan for the MeerKAT continuum sample.; Priya confirmed the data ingest pipeline is running again after the storage migration, and Alex volunteered to draft the observing-note template.; Everyone agreed to capture the calibration issues from the last semester in a lessons-learned doc before the internal review.
+- Pipeline Health Check: Priya walked through the fresh ingest metrics and highlighted lingering slowdowns on two nodes; the ops team will monitor throughput for the next 72 hours and escalate if rates dip again.
+- Observing-Note Template: Alex suggested a concise template covering pointing setup, calibrator health, and immediate follow-up actions. The group approved the outline and asked for a filled-in example ahead of the next session.
+- Calibration Lessons Learned: Jack will consolidate the recurring flux-scale variances into the shared document so the group can prioritise which fixes to bake into the July run. Priya requested an explicit checklist item to confirm bandpass stability.
+
+### Action items
+| Action | Owner | Due | Status |
+|--------|-------|-----|--------|
+| Circulate the ingest status report to the mailing list by Friday | Priya |  | Open |
+| Draft the observing-note template and share it for comments | Alex |  | Open |
+| Compile calibration lessons learned into the shared document | Jack |  | Open |
+| Propose dates for the internal review before the next call | Yusuf |  | Open |
+
+### Follow-up
+- Note any reminders or checks before the next meeting.
