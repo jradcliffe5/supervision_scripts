@@ -15,7 +15,8 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
 fi
 
 SHARED_DIR=""
-PRIVATE_TEMPLATE_DIR="02_templates"
+SUPERVISOR_DIR=""
+PRIVATE_TEMPLATE_DIR=""
 NEEDS_TEMPLATE_REFRESH=false
 PROGRAM_SLUG=""
 STUDENT_SLUG=""
@@ -593,12 +594,12 @@ This workspace keeps supervision materials, student deliverables, and key
 correspondence consolidated for the ${program} journey.
 
 ## Structure
-- Workspace root (private) — supervisor-only admin records (registration,
+- \`${SUPERVISOR_DIR}/\` — supervisor-only admin records (registration,
   funding, progress reports, candidacy paperwork).
 - \`${SHARED_DIR}/\` — share this subfolder with the student and supervisory
   team; it contains research artefacts and meeting records.
-- \`02_templates/\` — ready-to-copy meeting notes, progress reviews, onboarding
-  checklists.
+- \`${SUPERVISOR_DIR}/02_templates/\` — ready-to-copy meeting notes, progress
+  reviews, onboarding checklists.
 - \`supervision_quickstart.md\` — quick reference for running the supervision
   process.
 
@@ -611,7 +612,7 @@ correspondence consolidated for the ${program} journey.
 - \`${SHARED_DIR}/05_presentations\` — talks, posters, and slides.
 
 ## Sharing guidance
-Keep sensitive correspondence inside \`01_admin\` in the workspace root.
+Keep sensitive correspondence inside \`${SUPERVISOR_DIR}/01_admin\`.
 Grant the student access to \`${SHARED_DIR}\` once the workspace is ready.
 EOF
   convert_markdown_to_pdf "$file"
@@ -743,7 +744,7 @@ subject: "${program} supervision record"
 ## Useful links
 
 - Shared workspace: ../../${SHARED_DIR}
-- Templates: ../../02_templates
+- Templates: ../02_templates
 EOF
   convert_markdown_to_pdf "$file"
 }
@@ -853,18 +854,18 @@ subject: "${program} supervision overview"
 
 ## Weekly routine
 - Capture supervision meeting notes in \`${SHARED_DIR}/02_meetings/supervision_meetings.md\`.
-- File official correspondence in \`01_admin\`.
+- File official correspondence in \`${SUPERVISOR_DIR}/01_admin\`.
 - Log research progress in \`${SHARED_DIR}/01_research/research_log.md\`.
-- Reuse templates from \`02_templates\` rather than editing originals.
+- Reuse templates from \`${SUPERVISOR_DIR}/02_templates\` rather than editing originals.
 
 ## Checklist before first meeting
-1. Personalise \`01_admin/00_student_profile.md\`.
-2. Share the onboarding checklist in \`02_templates/onboarding-checklist.md\`.
+1. Personalise \`${SUPERVISOR_DIR}/01_admin/00_student_profile.md\`.
+2. Share the onboarding checklist in \`${SUPERVISOR_DIR}/02_templates/onboarding-checklist.md\`.
 3. Agree expectations for meeting cadence and response times.
 4. Review data management/storage expectations and any institutional policies.
 
 ## Notes
-- Archive dated material inside year-labelled subfolders (e.g. \`01_admin/progress_reports/2024\`).
+- Archive dated material inside year-labelled subfolders (e.g. \`${SUPERVISOR_DIR}/01_admin/progress_reports/2024\`).
 - Keep the shared folder clean by filing documents from \`${SHARED_DIR}/00_inbox\` regularly.
 EOF
   convert_markdown_to_pdf "$file"
@@ -881,15 +882,15 @@ cleanup_student_structure() {
   fi
 
   local shared_path="$student_root/$SHARED_DIR"
+  local supervisor_path="$student_root/$SUPERVISOR_DIR"
   local template_path="$student_root/$PRIVATE_TEMPLATE_DIR"
-  local legacy_supervisor_dir="$student_root/supervisor_private"
 
   rm -rf "$shared_path"
   rm -rf "$template_path"
-  rm -rf "$legacy_supervisor_dir"
+  rm -rf "$supervisor_path"
+  rm -rf "$student_root/02_templates"
   rm -rf "$student_root/01_admin"
   rm -f "$student_root/README.md" "$student_root/README.pdf"
-  rm -f "$student_root/private_workspace_overview.md" "$student_root/private_workspace_overview.pdf"
   rm -f "$student_root/supervision_quickstart.md" "$student_root/supervision_quickstart.pdf"
 
   local timestamp
@@ -907,13 +908,13 @@ cleanup_student_structure() {
     if [[ "$name" == "${backup_dir##*/}" ]]; then
       continue
     fi
-    if [[ "$name" == "$SHARED_DIR" || "$name" == "$PRIVATE_TEMPLATE_DIR" ]]; then
+    if [[ "$name" == "$SHARED_DIR" || "$name" == "$SUPERVISOR_DIR" ]]; then
       continue
     fi
-    if [[ "$name" == "01_admin" || "$name" == "supervisor_private" ]]; then
+    if [[ "$name" == "02_templates" || "$name" == "01_admin" || "$name" == "supervisor_private" ]]; then
       continue
     fi
-    if [[ "$name" == "README.md" || "$name" == "README.pdf" || "$name" == "private_workspace_overview.md" || "$name" == "private_workspace_overview.pdf" || "$name" == "supervision_quickstart.md" || "$name" == "supervision_quickstart.pdf" ]]; then
+    if [[ "$name" == "README.md" || "$name" == "README.pdf" || "$name" == "supervision_quickstart.md" || "$name" == "supervision_quickstart.pdf" ]]; then
       continue
     fi
     if [[ "$moved_any" == false ]]; then
@@ -947,7 +948,7 @@ create_student_structure() {
   local notes="$7"
 
   local shared_root="$student_root/$SHARED_DIR"
-  local private_root="$student_root"
+  local supervisor_root="$student_root/$SUPERVISOR_DIR"
   local template_root="$student_root/$PRIVATE_TEMPLATE_DIR"
   local migrated=false
 
@@ -955,13 +956,14 @@ create_student_structure() {
 
   ensure_directory "$student_root"
 
+  ensure_directory "$shared_root"
+  ensure_directory "$supervisor_root"
+  ensure_directory "$template_root"
+
   if move_legacy_item "$student_root/Shared_with_Student" "$shared_root"; then migrated=true; fi
   if move_legacy_item "$student_root/shared_with_student" "$shared_root"; then migrated=true; fi
-  if move_directory_contents "$student_root/Supervisor_Private" "$private_root"; then migrated=true; fi
-  if move_directory_contents "$student_root/supervisor_private" "$private_root"; then migrated=true; fi
-
-  ensure_directory "$shared_root"
-  ensure_directory "$template_root"
+  if move_legacy_item "$student_root/Supervisor_Private" "$supervisor_root"; then migrated=true; fi
+  if move_legacy_item "$student_root/supervisor_private" "$supervisor_root"; then migrated=true; fi
 
   if move_legacy_item "$student_root/00_Inbox" "$shared_root/00_Inbox"; then migrated=true; fi
   if move_legacy_item "$student_root/00_inbox" "$shared_root/00_inbox"; then migrated=true; fi
@@ -982,8 +984,19 @@ create_student_structure() {
   if move_legacy_item "$shared_root/Templates" "$template_root"; then migrated=true; fi
   if move_legacy_item "$shared_root/templates" "$template_root"; then migrated=true; fi
   if move_legacy_item "$shared_root/06_templates" "$template_root"; then migrated=true; fi
-  if move_legacy_item "$student_root/01_Admin" "$private_root/01_Admin"; then migrated=true; fi
-  if move_legacy_item "$student_root/01_admin" "$private_root/01_Admin"; then migrated=true; fi
+  if move_legacy_item "$student_root/01_Admin" "$supervisor_root/01_Admin"; then migrated=true; fi
+  if move_legacy_item "$student_root/01_admin" "$supervisor_root/01_Admin"; then migrated=true; fi
+
+  if [[ -f "$student_root/private_workspace_overview.md" ]]; then
+    ensure_directory "$supervisor_root"
+    mv "$student_root/private_workspace_overview.md" "$supervisor_root/" 2>/dev/null || true
+    migrated=true
+  fi
+  if [[ -f "$student_root/private_workspace_overview.pdf" ]]; then
+    ensure_directory "$supervisor_root"
+    mv "$student_root/private_workspace_overview.pdf" "$supervisor_root/" 2>/dev/null || true
+    migrated=true
+  fi
 
   if move_legacy_item "$shared_root/00_Inbox" "$shared_root/00_inbox"; then migrated=true; fi
   if move_legacy_item "$shared_root/02_Research" "$shared_root/01_research"; then migrated=true; fi
@@ -1007,13 +1020,13 @@ create_student_structure() {
   if move_legacy_item "$shared_root/03_professional_development/Workshops" "$shared_root/03_professional_development/workshops"; then migrated=true; fi
   if move_legacy_item "$shared_root/03_professional_development/Conference_Travel" "$shared_root/03_professional_development/conference_travel"; then migrated=true; fi
 
-  if move_legacy_item "$private_root/01_Admin" "$private_root/01_admin"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Registration" "$private_root/01_admin/registration"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Funding" "$private_root/01_admin/funding"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Progress_Reports" "$private_root/01_admin/progress_reports"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Coursework" "$private_root/01_admin/coursework"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Candidacy" "$private_root/01_admin/candidacy"; then migrated=true; fi
-  if move_legacy_item "$private_root/01_admin/Examiners" "$private_root/01_admin/examiners"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_Admin" "$supervisor_root/01_admin"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Registration" "$supervisor_root/01_admin/registration"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Funding" "$supervisor_root/01_admin/funding"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Progress_Reports" "$supervisor_root/01_admin/progress_reports"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Coursework" "$supervisor_root/01_admin/coursework"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Candidacy" "$supervisor_root/01_admin/candidacy"; then migrated=true; fi
+  if move_legacy_item "$supervisor_root/01_admin/Examiners" "$supervisor_root/01_admin/examiners"; then migrated=true; fi
 
   if [[ "$migrated" == true ]]; then
     NEEDS_TEMPLATE_REFRESH="true"
@@ -1041,30 +1054,30 @@ create_student_structure() {
 
   while IFS= read -r subdir; do
     [[ -z "$subdir" ]] && continue
-    ensure_directory "$private_root/$subdir"
+    ensure_directory "$supervisor_root/$subdir"
   done < <(supervisor_common_subdirs)
 
   case "$program" in
     Masters)
       while IFS= read -r subdir; do
         [[ -z "$subdir" ]] && continue
-        ensure_directory "$private_root/$subdir"
+        ensure_directory "$supervisor_root/$subdir"
       done < <(masters_supervisor_extra_subdirs)
       ;;
     PhD)
       while IFS= read -r subdir; do
         [[ -z "$subdir" ]] && continue
-        ensure_directory "$private_root/$subdir"
+        ensure_directory "$supervisor_root/$subdir"
       done < <(phd_supervisor_extra_subdirs)
       ;;
   esac
 
   create_student_readme "$student_root/README.md" "$full_name" "$program"
   create_shared_readme "$shared_root/README.md" "$full_name" "$program"
-  create_supervisor_private_readme "$student_root/private_workspace_overview.md" "$program"
+  create_supervisor_private_readme "$supervisor_root/private_workspace_overview.md" "$program"
   create_supervisor_quickstart "$student_root/supervision_quickstart.md" "$full_name" "$program" "$supervisor" "$co_supervisor"
 
-  create_student_profile "$private_root/01_admin/00_student_profile.md" "$full_name" "$program" "$start_year" "$supervisor" "$co_supervisor" "$notes"
+  create_student_profile "$supervisor_root/01_admin/00_student_profile.md" "$full_name" "$program" "$start_year" "$supervisor" "$co_supervisor" "$notes"
   create_student_meeting_log "$shared_root/02_meetings/supervision_meetings.md"
   create_student_research_log "$shared_root/01_research/research_log.md"
 
@@ -1137,6 +1150,8 @@ main() {
   STUDENT_SLUG="$(slugify_name "$STUDENT_NAME")"
   PROGRAM_SLUG="$(program_slug_from_name "$STUDENT_PROGRAM")"
   SHARED_DIR="$(derive_shared_dir_name "$STUDENT_PROGRAM" "$STUDENT_SLUG")"
+  SUPERVISOR_DIR="supervisor_private"
+  PRIVATE_TEMPLATE_DIR="${SUPERVISOR_DIR}/02_templates"
 
   ensure_directory "$ROOT_DIR"
 
