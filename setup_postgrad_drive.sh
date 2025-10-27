@@ -1016,7 +1016,8 @@ create_student_structure() {
   if move_legacy_item "$shared_root/01_research/Drafts" "$shared_root/01_research/drafts"; then migrated=true; fi
   if move_legacy_item "$shared_root/01_research/Thesis" "$shared_root/01_research/thesis"; then migrated=true; fi
   if move_legacy_item "$shared_root/01_research/Publications" "$shared_root/01_research/publications"; then migrated=true; fi
-  if move_legacy_item "$shared_root/02_meetings/Supervision" "$shared_root/02_meetings/supervision"; then migrated=true; fi
+  if move_directory_contents "$shared_root/02_meetings/Supervision" "$shared_root/02_meetings"; then migrated=true; fi
+  if move_directory_contents "$shared_root/02_meetings/supervision" "$shared_root/02_meetings"; then migrated=true; fi
   if move_legacy_item "$shared_root/03_professional_development/Workshops" "$shared_root/03_professional_development/workshops"; then migrated=true; fi
   if move_legacy_item "$shared_root/03_professional_development/Conference_Travel" "$shared_root/03_professional_development/conference_travel"; then migrated=true; fi
 

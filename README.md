@@ -4,7 +4,7 @@ Tools for setting up and running postgraduate supervision workspaces.
 
 ## setup_postgrad_drive.sh
 
-- Builds a supervision workspace with a shared student folder plus a private workspace root that holds admin records and master templates.
+- Builds a supervision workspace with a dedicated `supervisor_private/` folder for confidential materials and a separate shared folder for student-facing content (including templates in `supervisor_private/02_templates/`).
 - Names the workspace directory `YEAR_MSc_Lastname` or `YEAR_PhD_Lastname` based on the student metadata (defaults to the current year when omitted).
 - Idempotent; re-running fills in anything that changed while leaving existing files untouched.
 - Requires Bash 4+ and optionally Pandoc for Markdown → PDF exports.
